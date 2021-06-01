@@ -1,0 +1,17 @@
+# Define variables for compiling and linking here
+
+CC = /usr/bin/gcc
+CFLAGS = -Wall -pedantic -O3
+
+IGRAPHINC = -I/usr/local/include/igraph
+IGRAPHLIB = /usr/local/lib/libigraph.so
+
+NAUTYINC = -I/usr/include/x86_64-linux-gnu/nauty -I/usr/include/nauty
+NAUTYLIB = /usr/lib/x86_64-linux-gnu/libnauty.so
+
+ARPACKLIB = /usr/lib/x86_64-linux-gnu/libarpack.so
+LAPACKLIB = /usr/lib/x86_64-linux-gnu/liblapack.so
+BLASLIB   = /usr/lib/x86_64-linux-gnu/libblas.so
+
+INCS = $(IGRAPHINC) $(NAUTYINC)
+LIBS = $(IGRAPHLIB) $(NAUTYLIB) $(ARPACKLIB) $(LAPACKLIB) $(BLASLIB) -lm
