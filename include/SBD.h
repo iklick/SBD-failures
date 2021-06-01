@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
@@ -32,7 +33,7 @@ typedef struct {
 } SBD_t;
 
 int SBD_init (SBD_t *SBD, int N, int M);
-int SBD_from_graph (SBD_t *SBD, igraph_t *G);
+int SBD_from_graph (SBD_t *SBD, igraph_t *G, bool orbits, bool laplacian);
 int SBD_free (SBD_t *SBD);
 
 int SBD_print (SBD_t *SBD);

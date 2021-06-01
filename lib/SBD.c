@@ -43,12 +43,14 @@ int SBD_init (SBD_t *SBD, int N, int M) {
  * @brief Initialize an SBD instance as a graph adjacency matrix and its orbit indicator matrices.
  * @param[out] SBD The SBD instance to initialize
  * @param[in] G The graph used to create the SBD instance
+ * @param[in] orb Whether to use the orbits of the automorphism graph or use the minimal balanced coloring
+ * @param[in] laplacian If true use the Laplacian, if false use the adjacency matrix
  * @return 
  * @details
  *
  * @author Isaac Klickstein
  */
-int SBD_from_graph (SBD_t *SBD, igraph_t *G) {
+int SBD_from_graph (SBD_t *SBD, igraph_t *G, bool orb, bool laplacian) {
   
   // Determine the size of the graph
   int n = igraph_vcount (G);
@@ -58,8 +60,12 @@ int SBD_from_graph (SBD_t *SBD, igraph_t *G) {
   igraph_vector_int_init (&orbits, n);
   
   // Use nauty to find the orbits of the automorphism group
-  SBD_nauty_solve (G, &orbits);
-  
+  if (orb) {
+    SBD_nauty_solve (G, &orbits);
+  }
+  else {
+    SBD_belykh (G, &orbits);
+  }
   // Determine the number of orbits
   int M = igraph_vector_int_max (&orbits) + 1;
   
@@ -67,8 +73,12 @@ int SBD_from_graph (SBD_t *SBD, igraph_t *G) {
   SBD_init (SBD, n, M+1);
   
   // Set the first matrix in the SBD to be the adjacency matrix of the graph
-  igraph_get_adjacency (G, &SBD->A[0], IGRAPH_GET_ADJACENCY_BOTH, 0);
-  
+  if (laplacian) {
+    igraph_laplacian (G, &SBD->A[0], NULL, 0, NULL);
+  }
+  else {
+    igraph_get_adjacency (G, &SBD->A[0], IGRAPH_GET_ADJACENCY_BOTH, 0);
+  }
   // Make sure all the other matrices are initially all zero
   for (int k = 1; k < SBD->M; k++) {
     igraph_matrix_null (&SBD->A[k]);

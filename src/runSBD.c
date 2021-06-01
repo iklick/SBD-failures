@@ -70,7 +70,7 @@ int main (int argc, char *argv[]) {
   fclose (fin);
 
   // CREATE THE SBD INSTANCE
-  SBD_from_graph (&SBD, &graph);
+  SBD_from_graph (&SBD, &graph, use_orbits, laplacian);
   SBD_print (&SBD);
   
   int n = igraph_vcount (&graph);
@@ -91,11 +91,19 @@ int main (int argc, char *argv[]) {
     fprintf(fout, "%i\n", VECTOR(orbits)[k]);
   }
   
+  fclose (fout);
   
+  // WRITE THE MBC TO A FILE
+  sprintf (filename, "%s/MBC", directory);
+  fout = fopen(filename, "w");
   SBD_belykh (&graph, &orbits);
   
   printf("MBC:\n");
   igraph_vector_int_print (&orbits);
+  
+  for (int k = 0; k < n; k++) {
+    fprintf (fout, "%i\n", VECTOR(orbits)[k]);
+  }
   
   fclose (fout);
   
@@ -111,28 +119,32 @@ int main (int argc, char *argv[]) {
   
   SBD_lanczos (&SBD, epsilon, &P);
   
-  sprintf (filename, "%s/P", directory);
-  fout = fopen (filename, "w");
+  if (write_P) {
   
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      fprintf (fout, "%E ", MATRIX(P,i,j));
-    }
-    fprintf (fout, "\n");
-  }
-  
-  fclose (fout);
-  
-  for (int k = 0; k < SBD.M; k++) {
-    sprintf (filename, "%s/B_%i", directory, k);
+    sprintf (filename, "%s/P", directory);
     fout = fopen (filename, "w");
+  
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-        fprintf (fout, "%E ", MATRIX(SBD.B[k],i,j));
+        fprintf (fout, "%E ", MATRIX(P,i,j));
       }
       fprintf (fout, "\n");
     }
     fclose (fout);
+  }
+  
+  if (write_B) {  
+    for (int k = 0; k < SBD.M; k++) {
+      sprintf (filename, "%s/B_%i", directory, k);
+      fout = fopen (filename, "w");
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+          fprintf (fout, "%E ", MATRIX(SBD.B[k],i,j));
+        }
+        fprintf (fout, "\n");
+      }
+      fclose (fout);
+    }
   }
   
   igraph_vector_int_t blocks;
